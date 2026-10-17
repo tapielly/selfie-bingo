@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>合宿セルフィービンゴ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@500;700;900&display=swap">
+<style>
+/* Layout: one phone-width column; the poster's red paper, white cells, yellow title. Single theme by choice. */
+:root{
+  --red:#E4341D;
+  --red-deep:#B9240F;
+  --yellow:#F7D500;
+  --paper:#FFFFFF;
+  --ink:#D7291A;
+  --ink-soft:#9A9A9A;
+  --shade:rgba(0,0,0,.35);
+  --font-display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--red);color:var(--paper);
+  font-family:var(--font-body);font-weight:700;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:14px 48px;
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{
+  font-family:var(--font-display);font-weight:400;color:var(--yellow);
+  font-size:clamp(28px,8.2vw,40px);line-height:1.05;letter-spacing:-.01em;
+  text-align:center;margin:4px 0 0;text-wrap:balance;
+  text-shadow:0 2px 0 var(--red-deep);
+}
+.sub{font-family:var(--font-display);font-weight:400;color:var(--yellow);text-align:center;font-size:clamp(14px,4.2vw,18px);margin-top:-6px}
+.lead{font-size:12.5px;text-align:center;line-height:1.6;margin:0}
+.lead b{color:var(--yellow)}
+
+.namebar{display:flex;align-items:center;background:var(--paper);border-radius:8px;overflow:hidden}
+.namebar label{font-size:11px;color:var(--ink-soft);padding:0 10px;white-space:nowrap;letter-spacing:.06em}
+.namebar input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;padding:12px 10px 12px 0;
+  font:900 18px var(--font-body);color:var(--ink);
+}
+.namebar input::placeholder{color:#C9C9C9;font-weight:700}
+.namebar input:focus{box-shadow:inset 0 -3px 0 var(--yellow)}
+
+.stats{display:flex;gap:8px;justify-content:center;font-variant-numeric:tabular-nums}
+.pill{background:var(--red-deep);border-radius:999px;padding:5px 14px;font-size:13px}
+.pill b{color:var(--yellow);font-size:16px;margin:0 2px}
+.pill.bingo{background:var(--yellow);color:var(--red-deep)}
+.pill.bingo b{color:var(--red-deep)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cell{
+  position:relative;aspect-ratio:1;max-width:100%;background:var(--paper);border-radius:4px;
+  color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:6px;cursor:pointer;border:0;font-family:inherit;overflow:hidden;
+  transition:transform .08s;
+}
+.cell:active{transform:scale(.97)}
+.cell:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.cell .lines{font-weight:900;font-size:clamp(10px,3vw,15px);line-height:1.3}
+.cell .note{font-weight:700;font-size:clamp(9px,2.5vw,11px);line-height:1.35;margin-top:3px;color:var(--ink)}
+.cell .free{font-family:var(--font-display);font-weight:400;color:#C9B200;font-size:clamp(16px,5.6vw,26px);line-height:1;margin-bottom:4px}
+.cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cell .addicon{position:absolute;right:5px;bottom:4px;width:clamp(14px,4.5vw,20px);height:clamp(14px,4.5vw,20px);color:var(--ink);opacity:.32;pointer-events:none}
+.cell .addicon svg{width:100%;height:100%;display:block}
+.cell .tag{
+  position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.88);color:var(--ink);
+  font-size:clamp(9px,2.6vw,11px);font-weight:900;padding:3px 4px;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cell.filled .lines,.cell.filled .note,.cell.filled .free{display:none}
+.cell.lit::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 4px var(--yellow);border-radius:4px;pointer-events:none}
+
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.btn{
+  appearance:none;border:0;border-radius:12px;padding:16px 18px;font:900 18px var(--font-body);
+  cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:transform .08s,opacity .15s;
+}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:3px solid var(--paper);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-primary{background:var(--yellow);color:var(--red-deep);box-shadow:0 4px 0 #B89E00}
+.btn-primary:active{box-shadow:0 1px 0 #B89E00;transform:translateY(3px)}
+.btn-secondary{background:transparent;color:var(--paper);border:2.5px solid var(--paper)}
+.btn-ghost{background:transparent;color:var(--paper);font-size:14px;padding:10px;opacity:.85;text-decoration:underline;text-underline-offset:3px}
+.btn-danger{background:var(--paper);color:var(--red-deep)}
+.btn svg{width:22px;height:22px;flex:none}
+.btn-stack{flex-direction:column;gap:3px;padding:13px 18px}
+.btn-main{display:flex;align-items:center;gap:10px}
+.btn-sub{font-size:11px;font-weight:700;opacity:.85;line-height:1.4}
+.hint{font-size:11px;opacity:.85;text-align:center;margin:0;line-height:1.6}
+.rules{font-size:11.5px;line-height:1.7;opacity:.9;margin:6px 0 0;border-top:1px dashed rgba(255,255,255,.5);padding-top:10px}
+.rules p{margin:0}
+
+/* Overlays */
+.overlay{
+  position:fixed;inset:0;background:var(--red);color:var(--paper);z-index:20;
+  display:flex;flex-direction:column;overflow:auto;
+  padding-top:max(12px,env(safe-area-inset-top,0px));
+  padding-bottom:max(16px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.overlay .inner{max-width:480px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:12px;flex:1}
+.ov-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ov-head h2{font-size:16px;margin:0;font-weight:900}
+.ov-head .count{font-variant-numeric:tabular-nums;background:var(--red-deep);border-radius:999px;padding:4px 12px;font-size:13px}
+.preview{
+  background:var(--red-deep);border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  height:min(42vh,360px);max-width:100%;
+}
+.preview img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ov-q{text-align:center;font-size:15px;font-weight:900;margin:0}
+.minigrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mini{
+  position:relative;aspect-ratio:1.15;max-width:100%;background:var(--paper);color:var(--ink);border:0;border-radius:4px;
+  font:900 clamp(11px,3.4vw,14px) var(--font-body);line-height:1.25;padding:4px;cursor:pointer;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;text-align:center;font-family:inherit;
+}
+.mini img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45}
+.mini span{position:relative;z-index:1}
+.mini.filled span{background:rgba(255,255,255,.9);padding:2px 5px;border-radius:3px}
+.mini.filled::before{content:"貼付済";position:absolute;top:4px;right:4px;z-index:1;font-size:9px;background:var(--red);color:#fff;padding:1px 5px;border-radius:999px}
+.mini:active{transform:scale(.96)}
+.mini:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.ov-foot{display:flex;gap:8px;margin-top:auto}
+.ov-foot .btn{padding:13px 10px;font-size:15px}
+
+/* Sheet (bottom dialog) */
+.sheet-bg{position:fixed;inset:0;background:var(--shade);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{
+  background:var(--paper);color:#222;width:100%;max-width:520px;border-radius:18px 18px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;
+  max-height:88vh;overflow:auto;
+}
+.sheet h3{margin:0;font-size:16px;font-weight:900;color:var(--red-deep)}
+.sheet p{margin:0;font-size:14px;font-weight:500;color:#333}
+.sheet .big{max-width:100%;max-height:45vh;width:100%;object-fit:contain;border-radius:8px;background:#f1f1f1}
+.sheet .row{display:flex;gap:8px}
+.sheet .btn{font-size:15px;padding:13px}
+.sheet .btn-primary{box-shadow:none}
+.sheet .btn-secondary{color:var(--red-deep);border-color:var(--red-deep)}
+.sheet .btn-ghost{color:#555}
+.export-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.export-wrap img{max-width:100%;max-height:52vh;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  background:#222;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:40;
+  box-shadow:0 4px 14px rgba(0,0,0,.3);max-width:90vw;text-align:center;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.toast.show{opacity:1}
+.busy{position:fixed;inset:0;z-index:35;background:var(--shade);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900}
+.spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-right:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div class="wrap">
+  <h1>合宿セルフィービンゴ</h1>
+  <div class="sub">in 合宿'26 晩夏＠軽井沢</div>
+  <p class="lead">「（お題）とあなた」が映った写真を貼ってください<br>複数人で撮ったやつも大歓迎（でもポイントは個人戦）<br><b>1枚の写真は1マスまで</b>　顔出しは任意</p>
+
+  <div class="namebar">
+    <label for="name">ハンドルネーム</label>
+    <input id="name" type="text" placeholder="好きな名前でOK" autocomplete="nickname" maxlength="24">
+  </div>
+
+  <div class="stats" aria-live="polite">
+    <span class="pill">貼付 <b id="st-filled">0</b>/ 9</span>
+    <span class="pill" id="st-bingo-pill">ビンゴ <b id="st-bingo">0</b>列</span>
+  </div>
+
+  <div class="grid" id="grid" role="group" aria-label="ビンゴ台紙"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary btn-stack" id="btn-add" type="button">
+      <span class="btn-main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        写真をまとめて貼り付ける
+      </span>
+      <span class="btn-sub">1〜9枚まとめて選択→配置決め</span>
+    </button>
+    <button class="btn btn-secondary" id="btn-export" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>
+      結果を保存
+    </button>
+    <button class="btn btn-ghost" id="btn-reset" type="button">台紙をまっさらにする</button>
+  </div>
+</div>
+
+<input id="file-multi" class="sr" type="file" accept="image/*" multiple tabindex="-1" aria-hidden="true">
+<input id="file-single" class="sr" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+
+<!-- Assign overlay -->
+<div class="overlay" id="assign" hidden>
+  <div class="inner">
+    <div class="ov-head">
+      <h2>この写真はどのマス？</h2>
+      <span class="count" id="as-count">1 / 1</span>
+    </div>
+    <div class="preview"><img id="as-img" alt="貼り付ける写真"></div>
+    <p class="ov-q">貼るマスをタップ</p>
+    <div class="minigrid" id="minigrid"></div>
+    <div class="ov-foot">
+      <button class="btn btn-secondary" id="as-skip" type="button">この写真は使わない</button>
+      <button class="btn btn-danger" id="as-quit" type="button">ここでやめる</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom sheet -->
+<div class="sheet-bg" id="sheet-bg" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="busy" id="busy" hidden><span class="spin"></span><span id="busy-text">写真を読み込み中…</span></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+
+const CELLS = [
+  { lines:['軽井沢からの景色','と','東京からの景色'], note:['（同時に写して）'], short:'景色2つ' },
+  { lines:['鳥２種'], note:['（同時に写して）','（鳥もどきでもOK）'], short:'鳥２種' },
+  { lines:['よく燃えている','もの'], note:[], short:'燃えてるもの' },
+  { lines:['ガチ美味めし'], note:['（2日目限定）'], short:'ガチ美味めし' },
+  { lines:['合宿最高の瞬間'], note:['（自分映ってなくてもOK）'], short:'最高の瞬間', free:true },
+  { lines:['ガチ自然'], note:[], short:'ガチ自然' },
+  { lines:['忘れ物をした人と','それを持ってきた','あなたの写真'], note:[], short:'忘れ物の人と' },
+  { lines:['夜の','チルタイム勢'], note:[], short:'夜のチル勢' },
+  { lines:['即席で','作った謎'], note:['（媒体問わず）'], short:'即席の謎' },
+];
+const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const MAX_EDGE = 1280;
+const ADD_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.2"/><path d="M19 2v5M16.5 4.5h5"/></svg>';
+
+const $ = id => document.getElementById(id);
+const state = { name:'', photos:{} }; // photos[i] = data URL (JPEG)
+
+/* ---------- storage ---------- */
+let dbp = null;
+function openDB(){
+  if (dbp) return dbp;
+  dbp = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open('selfie-bingo', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    } catch (e) { rej(e); }
+  });
+  return dbp;
+}
+async function kvGetAll(){
+  try {
+    const db = await openDB();
+    return await new Promise((res, rej) => {
+      const tx = db.transaction('kv','readonly'); const st = tx.objectStore('kv');
+      const out = {}; const req = st.openCursor();
+      req.onsuccess = () => { const c = req.result; if (c){ out[c.key] = c.value; c.continue(); } else res(out); };
+      req.onerror = () => rej(req.error);
+    });
+  } catch (e) { return {}; }
+}
+async function kvSet(k, v){
+  try { const db = await openDB(); await new Promise((res, rej) => { const tx = db.transaction('kv','readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+  catch (e) { console.warn('save failed', e); }
+}
+async function kvDel(k){
+  try { const db = await openDB(); await new Promise((res, rej) => { const tx = db.transaction('kv','readwrite'); tx.objectStore('kv').delete(k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+  catch (e) {}
+}
+async function kvClear(){
+  try { const db = await openDB(); await new Promise((res, rej) => { const tx = db.transaction('kv','readwrite'); tx.objectStore('kv').clear(); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+  catch (e) {}
+}
+
+/* ---------- scoring ---------- */
+function isFilled(i){ return !!state.photos[i] || !!CELLS[i].free; }
+function bingoLines(){ return LINES.filter(l => l.every(isFilled)); }
+function litCells(){ const s = new Set(); bingoLines().forEach(l => l.forEach(i => s.add(i))); return s; }
+
+/* ---------- render ---------- */
+function render(){
+  const grid = $('grid'); grid.textContent = '';
+  const lit = litCells();
+  CELLS.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'cell' + (state.photos[i] ? ' filled' : '') + (lit.has(i) ? ' lit' : '');
+    b.setAttribute('aria-label', (state.photos[i] ? '貼付済み: ' : '未貼付: ') + c.lines.join(''));
+    if (!state.photos[i]){ const ic = document.createElement('span'); ic.className = 'addicon'; ic.innerHTML = ADD_ICON; b.appendChild(ic); }
+    if (c.free){ const f = document.createElement('div'); f.className = 'free'; f.textContent = 'FREE!'; b.appendChild(f); }
+    const l = document.createElement('div'); l.className = 'lines'; l.innerHTML = c.lines.map(esc).join('<br>'); b.appendChild(l);
+    if (c.note.length){ const n = document.createElement('div'); n.className = 'note'; n.innerHTML = c.note.map(esc).join('<br>'); b.appendChild(n); }
+    if (state.photos[i]){
+      const img = document.createElement('img'); img.src = state.photos[i]; img.alt = ''; b.appendChild(img);
+      const t = document.createElement('div'); t.className = 'tag'; t.textContent = (c.free ? 'FREE ' : '') + c.short; b.appendChild(t);
+    }
+    b.addEventListener('click', () => onCellTap(i));
+    grid.appendChild(b);
+  });
+  const filled = CELLS.filter((c, i) => !!state.photos[i]).length;
+  const lines = bingoLines().length;
+  $('st-filled').textContent = filled;
+  $('st-bingo').textContent = lines;
+  $('st-bingo-pill').classList.toggle('bingo', lines > 0);
+}
+function esc(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ---------- toast / busy / sheet ---------- */
+let toastT = 0;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+function busy(on, text){ $('busy').hidden = !on; if (text) $('busy-text').textContent = text; }
+
+function openSheet(build){
+  const bg = $('sheet-bg'), sh = $('sheet'); sh.textContent = '';
+  build(sh); bg.hidden = false;
+  const first = sh.querySelector('button'); if (first) first.focus();
+}
+function closeSheet(){ $('sheet-bg').hidden = true; $('sheet').textContent = ''; }
+$('sheet-bg').addEventListener('click', e => { if (e.target === e.currentTarget) closeSheet(); });
+function mkBtn(label, cls, fn){ const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + cls; b.textContent = label; b.addEventListener('click', fn); return b; }
+function confirmSheet(title, text, okLabel){
+  return new Promise(res => {
+    openSheet(sh => {
+      const h = document.createElement('h3'); h.textContent = title; sh.appendChild(h);
+      if (text){ const p = document.createElement('p'); p.textContent = text; sh.appendChild(p); }
+      sh.appendChild(mkBtn(okLabel, 'btn-primary', () => { closeSheet(); res(true); }));
+      sh.appendChild(mkBtn('やめる', 'btn-ghost', () => { closeSheet(); res(false); }));
+    });
+  });
+}
+
+/* ---------- image processing ---------- */
+function loadImage(src){
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('decode')); im.src = src; });
+}
+async function fileToJpeg(file){
+  const url = URL.createObjectURL(file);
+  try {
+    const im = await loadImage(url);
+    const w = im.naturalWidth, h = im.naturalHeight;
+    const s = Math.min(1, MAX_EDGE / Math.max(w, h));
+    const cw = Math.max(1, Math.round(w * s)), ch = Math.max(1, Math.round(h * s));
+    const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+    const ctx = cv.getContext('2d'); ctx.drawImage(im, 0, 0, cw, ch);
+    return cv.toDataURL('image/jpeg', 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function filesToJpegs(files){
+  const out = [];
+  for (let i = 0; i < files.length; i++){
+    busy(true, `写真を読み込み中… ${i + 1} / ${files.length}`);
+    try { out.push(await fileToJpeg(files[i])); } catch (e) { console.warn('skip file', files[i].name, e); }
+  }
+  busy(false);
+  return out;
+}
+
+/* ---------- assign flow ---------- */
+let batch = null; // { items:[dataUrl], i, placed }
+$('btn-add').addEventListener('click', () => { $('file-multi').value = ''; $('file-multi').click(); });
+$('file-multi').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  const items = await filesToJpegs(files);
+  if (!items.length){ toast('読み込める写真がありませんでした'); return; }
+  batch = { items, i:0, placed:0 };
+  $('assign').hidden = false; window.scrollTo(0, 0);
+  renderAssign();
+});
+function renderAssign(){
+  const it = batch.items[batch.i];
+  $('as-img').src = it;
+  $('as-count').textContent = `${batch.i + 1} / ${batch.items.length}`;
+  const mg = $('minigrid'); mg.textContent = '';
+  CELLS.forEach((c, i) => {
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = 'mini' + (state.photos[i] ? ' filled' : '');
+    if (state.photos[i]){ const im = document.createElement('img'); im.src = state.photos[i]; im.alt = ''; b.appendChild(im); }
+    const s = document.createElement('span'); s.textContent = (c.free ? 'FREE ' : '') + c.short; b.appendChild(s);
+    b.setAttribute('aria-label', c.lines.join('') + (state.photos[i] ? '（貼付済み）' : ''));
+    b.addEventListener('click', () => assignTo(i));
+    mg.appendChild(b);
+  });
+}
+async function assignTo(i){
+  if (state.photos[i]){
+    const ok = await confirmSheet('「' + CELLS[i].lines.join('') + '」は貼付済みです', 'いま表示している写真に差し替えますか？', '差し替える');
+    if (!ok) return;
+  }
+  await setPhoto(i, batch.items[batch.i]);
+  batch.placed++;
+  nextInBatch();
+}
+function nextInBatch(){
+  batch.i++;
+  if (batch.i >= batch.items.length) finishBatch(); else renderAssign();
+}
+function finishBatch(){
+  const n = batch.placed; batch = null;
+  $('assign').hidden = true; $('as-img').removeAttribute('src');
+  render();
+  toast(n ? `${n}枚を貼りました` : '貼った写真はありません');
+}
+$('as-skip').addEventListener('click', nextInBatch);
+$('as-quit').addEventListener('click', finishBatch);
+
+async function setPhoto(i, dataUrl){ state.photos[i] = dataUrl; await kvSet('cell:' + i, dataUrl); }
+async function removePhoto(i){ delete state.photos[i]; await kvDel('cell:' + i); }
+
+/* ---------- single cell tap ---------- */
+let targetCell = -1;
+function pickSingle(i){ targetCell = i; $('file-single').value = ''; $('file-single').click(); }
+$('file-single').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; const i = targetCell; targetCell = -1;
+  if (!f || i < 0) return;
+  const items = await filesToJpegs([f]);
+  if (!items.length){ toast('この写真は読み込めませんでした'); return; }
+  await setPhoto(i, items[0]); render(); toast('「' + CELLS[i].short + '」に貼りました');
+});
+function onCellTap(i){
+  const c = CELLS[i];
+  if (!state.photos[i]){ pickSingle(i); return; }
+  openSheet(sh => {
+    const h = document.createElement('h3'); h.textContent = (c.free ? 'FREE! ' : '') + c.lines.join(''); sh.appendChild(h);
+    if (c.note.length){ const p = document.createElement('p'); p.textContent = c.note.join('　'); sh.appendChild(p); }
+    const im = document.createElement('img'); im.className = 'big'; im.src = state.photos[i]; im.alt = ''; sh.appendChild(im);
+    const row = document.createElement('div'); row.className = 'row';
+    row.appendChild(mkBtn('差し替える', 'btn-primary', () => { closeSheet(); pickSingle(i); }));
+    row.appendChild(mkBtn('外す', 'btn-secondary', async () => { closeSheet(); await removePhoto(i); render(); toast('外しました'); }));
+    sh.appendChild(row);
+    sh.appendChild(mkBtn('閉じる', 'btn-ghost', closeSheet));
+  });
+}
+
+/* ---------- reset ---------- */
+$('btn-reset').addEventListener('click', async () => {
+  const ok = await confirmSheet('台紙をまっさらにしますか？', '貼った写真をすべて外します。元には戻せません。', 'すべて外す');
+  if (!ok) return;
+  state.photos = {}; await kvClear(); render(); toast('まっさらにしました');
+});
+
+/* ---------- name ---------- */
+$('name').addEventListener('input', e => { state.name = e.target.value; try { localStorage.setItem('selfie-bingo:name', state.name); } catch (e2) {} });
+
+/* ---------- export (1080 x 1440 JPEG) ---------- */
+function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function drawCover(ctx, im, x, y, w, h){
+  const r = Math.max(w / im.naturalWidth, h / im.naturalHeight);
+  const sw = w / r, sh = h / r, sx = (im.naturalWidth - sw) / 2, sy = (im.naturalHeight - sh) / 2;
+  ctx.drawImage(im, sx, sy, sw, sh, x, y, w, h);
+}
+async function renderBoard(){
+  try { await document.fonts.load('400 80px "Dela Gothic One"'); await document.fonts.load('900 30px "Noto Sans JP"'); await document.fonts.load('700 30px "Noto Sans JP"'); } catch (e) {}
+  const W = 1080, H = 1440;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  const red = '#E4341D', redDeep = '#B9240F', yellow = '#F7D500', ink = '#D7291A';
+  const DISPLAY = '"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif';
+  const BODY = '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
+
+  ctx.fillStyle = red; ctx.fillRect(0, 0, W, H);
+  // faint grain
+  ctx.globalAlpha = .06; for (let k = 0; k < 2600; k++){ ctx.fillStyle = k & 1 ? '#000' : '#fff'; ctx.fillRect(Math.random() * W, Math.random() * H, 2, 2); } ctx.globalAlpha = 1;
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = redDeep; ctx.font = `400 84px ${DISPLAY}`; ctx.fillText('合宿セルフィービンゴ', W / 2, 96 + 4);
+  ctx.fillStyle = yellow; ctx.fillText('合宿セルフィービンゴ', W / 2, 96);
+  ctx.font = `400 38px ${DISPLAY}`; ctx.fillText("in 合宿'26 晩夏＠軽井沢", W / 2, 172);
+
+  ctx.fillStyle = '#fff'; ctx.font = `700 24px ${BODY}`;
+  ctx.fillText('「（お題）とあなた」が映った写真を貼り付けてください', W / 2, 232);
+  ctx.fillText('複数人で撮ったやつも大歓迎（でもポイントは個人戦）　顔出しは任意', W / 2, 268);
+
+  // name bar
+  ctx.fillStyle = '#fff'; roundRect(ctx, 46, 300, W - 92, 62, 6); ctx.fill();
+  const nm = (state.name || '').trim();
+  ctx.fillStyle = nm ? ink : '#C4C4C4'; ctx.font = `900 32px ${BODY}`; ctx.fillText(nm || '氏名書くとこ', W / 2, 331);
+
+  // grid
+  const size = 320, gap = 14, x0 = (W - 3 * size - 2 * gap) / 2, y0 = 384;
+  const lit = litCells();
+  for (let i = 0; i < 9; i++){
+    const c = CELLS[i]; const x = x0 + (i % 3) * (size + gap), y = y0 + Math.floor(i / 3) * (size + gap);
+    ctx.fillStyle = '#fff'; ctx.fillRect(x, y, size, size);
+    if (state.photos[i]){
+      const im = await loadImage(state.photos[i]);
+      ctx.save(); ctx.beginPath(); ctx.rect(x, y, size, size); ctx.clip(); drawCover(ctx, im, x, y, size, size); ctx.restore();
+      ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillRect(x, y + size - 44, size, 44);
+      ctx.fillStyle = ink; ctx.font = `900 22px ${BODY}`; ctx.fillText((c.free ? 'FREE ' : '') + c.short, x + size / 2, y + size - 22);
+    } else {
+      const lh = 36, nh = 26;
+      const total = (c.free ? 56 : 0) + c.lines.length * lh + (c.note.length ? 6 + c.note.length * nh : 0);
+      let cy = y + size / 2 - total / 2;
+      if (c.free){ ctx.fillStyle = '#C9B200'; ctx.font = `400 50px ${DISPLAY}`; ctx.fillText('FREE!', x + size / 2, cy + 26); cy += 56; }
+      ctx.fillStyle = ink; ctx.font = `900 30px ${BODY}`;
+      for (const ln of c.lines){ ctx.fillText(ln, x + size / 2, cy + lh / 2); cy += lh; }
+      if (c.note.length){ cy += 6; ctx.font = `700 21px ${BODY}`; for (const ln of c.note){ ctx.fillText(ln, x + size / 2, cy + nh / 2); cy += nh; } }
+    }
+    if (lit.has(i)){ ctx.strokeStyle = yellow; ctx.lineWidth = 10; ctx.strokeRect(x + 5, y + 5, size - 10, size - 10); }
+  }
+  // footer
+  const filled = Object.keys(state.photos).length, lines = bingoLines().length;
+  ctx.fillStyle = yellow; ctx.font = `900 30px ${BODY}`;
+  ctx.fillText(`貼付 ${filled} / 9　　ビンゴ ${lines} 列`, W / 2, 1400);
+
+  return await new Promise(res => cv.toBlob(b => res(b), 'image/jpeg', 0.9));
+}
+
+const downloadsNS = (window.claude && typeof window.claude.use === 'function')
+  ? window.claude.use('downloads').catch(() => null)
+  : Promise.resolve(null);
+
+$('btn-export').addEventListener('click', async () => {
+  const btn = $('btn-export'); btn.disabled = true; busy(true, '台紙を描いています…');
+  let blob;
+  try { blob = await renderBoard(); } catch (e) { busy(false); btn.disabled = false; toast('画像を作れませんでした'); console.error(e); return; }
+  busy(false); btn.disabled = false;
+  const safe = (state.name || '').trim().replace(/[\\/:*?"<>|]/g, '').slice(0, 20) || 'noname';
+  const filename = `selfie-bingo_${safe}.jpg`;
+  const url = URL.createObjectURL(blob);
+  const dl = await downloadsNS;
+  let saved = false;
+  if (dl){
+    try { await dl.save({ filename, data: blob }); saved = true; toast('保存しました'); }
+    catch (e) { if (e && e.code === 'declined') { /* viewer said no */ } else console.warn('downloads.save', e); }
+  } else {
+    try { const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); saved = true; } catch (e) {}
+  }
+  openSheet(sh => {
+    const h = document.createElement('h3'); h.textContent = saved ? '台紙を保存しました' : '台紙ができました'; sh.appendChild(h);
+    const p = document.createElement('p'); p.textContent = saved ? '保存できていない場合は、下の画像を長押しして「写真に保存」でも保存できます。' : '下の画像を長押しして「写真に保存」か「画像をダウンロード」を選んでください。'; sh.appendChild(p);
+    const w = document.createElement('div'); w.className = 'export-wrap';
+    const im = document.createElement('img'); im.src = url; im.alt = '完成したビンゴ台紙'; w.appendChild(im); sh.appendChild(w);
+    if (!dl){ const a = document.createElement('a'); a.className = 'btn btn-primary'; a.href = url; a.download = filename; a.textContent = 'もう一度ダウンロード'; sh.appendChild(a); }
+    sh.appendChild(mkBtn('閉じる', 'btn-ghost', () => { closeSheet(); setTimeout(() => URL.revokeObjectURL(url), 60000); }));
+  });
+});
+
+/* ---------- boot ---------- */
+(async () => {
+  try { state.name = localStorage.getItem('selfie-bingo:name') || ''; } catch (e) {}
+  $('name').value = state.name;
+  const all = await kvGetAll();
+  for (const k in all){ if (k.startsWith('cell:')) state.photos[+k.slice(5)] = all[k]; }
+  render();
+})();
+
+// hook for automated checks only
+window.__bingo = { setPhoto: async (i, d) => { await setPhoto(i, d); render(); }, renderBoard, state, startBatch: items => { batch = { items, i:0, placed:0 }; $('assign').hidden = false; renderAssign(); } };
+})();
+</script>
+
+</body>
+</html>
